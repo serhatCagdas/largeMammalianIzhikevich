@@ -1,0 +1,54 @@
+31.01.2020
+--------------------------------
+* tablolar hazırlandı
+* nöronlar yaratıldı, parametreleri verildi, sinaps dağılımları yapıldı (corticocortical hariç)
+
+- nöron dynamics yok.
+- inhibitory exitatory ayrımı yok
+
+- STDP yok
+- STD/STF yok
+- delay yok
+
+ 
+ 
+ 03.02.2020
+ --------------------------------
+ 
+ * synaptic tablodaki hata giderildi
+ * parametre güncellendi
+ 
+ + nöron dynamics eklendi 
+ + inhibitory-exitatory ayrımı yapıldı
+ + STD/STF eklendi
+ + STDP eklendi  
+ 
+ major
+ 
+ - delay yok 
+ - gap junction etkisi eklenmedi
+
+minor
+
+ - istisna sinaps ve nöronlarla ilgili aksiyon alınmadı
+  
+
+sorular 
+
+dopamin modulasyonu temelli bir STDP belirlenmiş. Bu tam olarak nasıl kullanılacak?
+* reward rastgele verildi.
+* dopamine her yere aynı şekilde mi ulaşıyor?
+corticocortical bağlantı nasıl eklenecek noise poisson
+
+
+ 23.02.2020
+ --------------------------------
+ 
+ * synaptic tabloda brainstem ve sensory girdileri ekstra bir sütun olarak eklendi. ()
+ 
+ parametreler tablodaki değerlerin %10 randomize edildi.
+ 
+ gecikmeler eklendi. Gri bölge içerisinde tamamen random.
+  
+ soru --> layer genişlikleri biliniyor mu, aynı layerda yatay uzaklık nasıl dikkate alınıyor 
+		(nöronlar için bir konum bilgisi eklenmedi)
