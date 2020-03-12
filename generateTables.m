@@ -27,8 +27,11 @@ function [tabCellPerc,tabSynapsPerc,tabParam] = generateTables(swParam)
     % newArr = [paramName' paramArray];  
     isExcitatory = {0 1  0 0  1  1  1 0 0  1  1 0 0  1  1 0 0  1  1 0 0 0};
     smax         = {4 10 6 4 10 10 10 6 4 10 10 6 4 10 10 6 4 20 20 5 5 5}; 
-    %p:1,ss:2,b:3,nb:4,TC:5,TI:6,RTN:7
-    typeId = {4,1,3,4,2,2,1,3,4,1,1,3,4,1,1,3,4,5,5,6,6,7};
+    
+    % RS = 1, LS = 2, FS=3, LTS = 4, TS= 5, TI= 6, TRN =7 
+    typeId = {2,1,3,4,1,1,1,3,4,1,1,3,4,1,1,3,4,5,5,6,6,7};
+    % cancelled p:1,ss:2,b:3,nb:4,TC:5,TI:6,RTN:7
+    %     typeId = {4,1,3,4,2,2,1,3,4,1,1,3,4,1,1,3,4,5,5,6,6,7};
     
     tabParam = cell2table([paramArray ; isExcitatory; smax; typeId],...
         'VariableNames', cellType);

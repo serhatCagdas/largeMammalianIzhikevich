@@ -16,15 +16,16 @@ function [delay_ms] = calcAxonalDelay(postDendLayer,preSomaLayer)
     if( postDendLayer == 8 || postDendLayer == 9)
         
         delay_ms = (preSomaLayer == 5) + (preSomaLayer == 6)*20; %  + L5 to thalamus	1  ms
-                                                                 %  + L6 to thalamus	20 ms
-        
-        delay_ms = delay_ms + (postDendLayer == 8); %  specific thalamocortical 	1 ms
-        
-        delay_ms = delay_ms + (postDendLayer == 9).*rand(1,length(delay_ms))*20; %  non specific randomized for now
-        
+                                                                 %  + L6 to thalamus	20 ms 
     else
         
-        delay_ms = abs(postDendLayer - preSomaLayer).*(1+0.1*randn(1,length(preSomaLayer)));        
+        delay_ms = (preSomaLayer == 8); %  specific thalamocortical 	1 ms
+        
+        delay_ms = delay_ms + (preSomaLayer == 9).*rand(1,length(delay_ms))*20; %  non specific randomized for now
+        
+        delay_ms = (delay_ms==0).*abs(postDendLayer - preSomaLayer).*(1+0.1*randn(1,length(preSomaLayer)));     
+        
+        delay_ms = delay_ms - ((delay_ms > 20).*(delay_ms - 20));
     end
 
 end

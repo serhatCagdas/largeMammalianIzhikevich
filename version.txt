@@ -48,7 +48,9 @@ corticocortical bağlantı nasıl eklenecek noise poisson
  
  parametreler tablodaki değerlerin %10 randomize edildi.
  
- gecikmeler eklendi. Gri bölge içerisinde tamamen random.
+ + gecikmeler eklendi. Gri bölge içerisinde tamamen random.
   
  soru --> layer genişlikleri biliniyor mu, aynı layerda yatay uzaklık nasıl dikkate alınıyor 
 		(nöronlar için bir konum bilgisi eklenmedi)
+		
+ + istisna sinaps ve nöronlarla ilgili kurallar eklendi.

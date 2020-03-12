@@ -22,7 +22,8 @@ function [nrn, smax, isexcitatory ] = networInitProcedure(updateData,fname,tabCe
             
             for j = 1:numberOfNeuron
 
-                nrntemp{j}.Type = char(tabCellPerc.Row(i));
+                nrntemp{j}.Type  = char(tabCellPerc.Row(i));
+                nrntemp{j}.TypeId = tabParam{'typeId',nrntemp{j}.Type};
                 nrntemp{j}.C = tabParam{'C',nrntemp{j}.Type}*(1+0.1*randn());   %10 perc rand
                 nrntemp{j}.k = tabParam{'k',nrntemp{j}.Type};
                 nrntemp{j}.vr = tabParam{'vr',nrntemp{j}.Type}*(1+0.1*rand());
@@ -63,10 +64,17 @@ function [nrn, smax, isexcitatory ] = networInitProcedure(updateData,fname,tabCe
             nrn = [nrn; nrntemp]; 
         end
 
-        clear numberOfNeuron nrntemp 
+        clear nrntemp 
 
         disp('dendrite and synapse establishment...');
-
+        
+        nrnNum = length(isexcitatory);
+        isexcitatory = [isexcitatory ;1 ;1 ;1];
+        smax       = [smax ; 1; 1 ;1];
+        typeId       = [typeId ; nrnNum+1; nrnNum+2; nrnNum+3];
+        cellLayer = [cellLayer 0 0 0];
+    
+        
         for i= 1:length(nrn)  
                 
              if(mod(i,10) == 0)
@@ -76,8 +84,8 @@ function [nrn, smax, isexcitatory ] = networInitProcedure(updateData,fname,tabCe
              end
              
              nrn{i}.isfired = 0;
-             nrn{i}.v = nrn{i}.c_soma -10;
-             nrn{i}.u = nrn{i}.b*nrn{i}.v; 
+             nrn{i}.v = nrn{i}.vr; % nrn{i}.c_soma;
+             nrn{i}.u = 0; %nrn{i}.b*nrn{i}.v; 
              nrn{i}.dendLayer  = cell2mat( tabSynapsPerc{nrn{i}.Type  , 'dendLayer'});
              nrn{i}.synapseNum = round(cell2mat (tabSynapsPerc{nrn{i}.Type  ,'synapseNum'}) * swParam.scale_factor *(1 + 0.1*randn()));
             
@@ -93,16 +101,38 @@ function [nrn, smax, isexcitatory ] = networInitProcedure(updateData,fname,tabCe
                    
                     firstInd    = tabCellPerc{tabCellPerc.Row(preSynTypeInd),'FirstInd'};
                     cellNum     = tabCellPerc{tabCellPerc.Row(preSynTypeInd),'Numb'}; 
-                    synapsePercAll  = cell2mat(synapsePerc{nrn{i}.Type,tabCellPerc.Row(1)});
+                    synapsePercAll  = cell2mat(synapsePerc{nrn{i}.Type,tabCellPerc.Row(preSynTypeInd)});
                     synapseNumLayer = round(synapsePercAll(layerInd)*nrn{i}.synapseNum(layerInd)/100);
                     
-                    synapses(indPreSyn : indPreSyn + synapseNumLayer -1 ) ...
-                         = firstInd + ceil(rand(synapseNumLayer,1)*cellNum);
+                     synapses(indPreSyn : indPreSyn + synapseNumLayer -1 ) ...
+                          = firstInd + ceil(rand(synapseNumLayer,1)*cellNum);
                     indPreSyn = indPreSyn + synapseNumLayer;
                 end
                 
+                %add corticocortical --> choose neuron index -1
+                synapsePercAll  = cell2mat(synapsePerc{nrn{i}.Type,'corCort'});
+                synapseNumLayer = round(synapsePercAll(layerInd)*nrn{i}.synapseNum(layerInd)/100);
+                synapses(indPreSyn : indPreSyn + synapseNumLayer -1 ) = nrnNum+1; 
+                indPreSyn = indPreSyn + synapseNumLayer;
+                %add brainstem       --> -2
+                synapsePercAll  = synapsePerc{nrn{i}.Type,'brainstem'};
+                synapseNumLayer = round(synapsePercAll(1)*nrn{i}.synapseNum(layerInd)/100);
+                synapses(indPreSyn : indPreSyn + synapseNumLayer -1 ) = nrnNum+2; 
+                indPreSyn = indPreSyn + synapseNumLayer;
+                %add sensory         --> -3
+                synapsePercAll  = synapsePerc{nrn{i}.Type,'sensory'};
+                synapseNumLayer = round(synapsePercAll(1)*nrn{i}.synapseNum(layerInd)/100);
+                synapses(indPreSyn : indPreSyn + synapseNumLayer -1 ) = nrnNum+3; 
                 
-                synapseInds = ceil(rand(swParam.max_synapse_per_dendrite,nrn{i}.dendNum(layerInd))*nrn{i}.synapseNum(layerInd));
+                
+                synapses(indPreSyn : end ) =  nrnNum+1;  % kalan synapselar için 
+                
+                % corticocortical brainstem ve sensory girdileri ÝÇERÝ de eklenebilir
+                %bunu düþün içeri eklemek için tabCellPerc deðil
+                %synapsePerc kullan 
+                
+                
+                synapseInds = ceil(rand(swParam.max_synapse_per_dendrite,nrn{i}.dendNum(layerInd))*length(synapses));%nrn{i}.synapseNum(layerInd));
                 
                 for dendInd = 1:nrn{i}.dendNum(layerInd)
                     
@@ -111,9 +141,8 @@ function [nrn, smax, isexcitatory ] = networInitProcedure(updateData,fname,tabCe
                     ind_limit = (remaining_syn>swParam.max_synapse_per_dendrite)*swParam.max_synapse_per_dendrite +...
                                 (remaining_syn<=swParam.max_synapse_per_dendrite)*remaining_syn;
                     nrn{i}.layer{layerInd}.dend{dendInd}.synapses = ...
-                        synapseInds(1:ind_limit ,dendInd);
+                        synapses(synapseInds(1:ind_limit ,dendInd));%synapseInds(1:ind_limit ,dendInd);
                      
-                    
                     nrn{i}.layer{layerInd}.dend{dendInd}.W = ...                           %weights
                         (isexcitatory(nrn{i}.layer{layerInd}.dend{dendInd}.synapses)).*rand(ind_limit,1)*6 ... % for excitatory
                         +(1 - isexcitatory(nrn{i}.layer{layerInd}.dend{dendInd}.synapses))*4; % for inhibitory
@@ -135,8 +164,8 @@ function [nrn, smax, isexcitatory ] = networInitProcedure(updateData,fname,tabCe
                     nrn{i}.layer{layerInd}.dend{dendInd}.STDP.c     = zeros(ind_limit,1);
                     nrn{i}.layer{layerInd}.dend{dendInd}.fired_ind  = -1000;
                     
-                    nrn{i}.layer{layerInd}.dend{dendInd}.v = nrn{i}.c_dend-10;
-                    nrn{i}.layer{layerInd}.dend{dendInd}.u = nrn{i}.c_dend*nrn{i}.b;
+                    nrn{i}.layer{layerInd}.dend{dendInd}.v = nrn{i}.vr;
+                    nrn{i}.layer{layerInd}.dend{dendInd}.u = 0; %nrn{i}.c_soma*nrn{i}.b;
                     
                     nrn{i}.layer{layerInd}.dend{dendInd}.delay = calcAxonalDelay(nrn{i}.dendLayer(layerInd) ,cellLayer(nrn{i}.layer{layerInd}.dend{dendInd}.synapses));
                     

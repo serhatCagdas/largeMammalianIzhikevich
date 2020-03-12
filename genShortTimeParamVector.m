@@ -2,14 +2,14 @@ function [Ts,p] = genShortTimeParamVector( postSynNrn ,preSynNrns)
 
 synType = 10*preSynNrns + postSynNrn ;
 
+% RS = 1, LS = 2, FS=3, LTS = 4, TS= 5, TI= 6, TRN =7 
 
+ state150_06  = (synType == 11)  + (synType == 13) ...
+              + (synType == 31) + (synType == 33);
 
- state150_06  = (synType == 11) + (synType == 12) + (synType == 21) + (synType == 13) ...
-          + (synType == 23) + (synType == 31) + (synType == 32);
+ state150_07 = (synType == 51) ;
 
- state150_07 = (synType == 51) + (synType == 52);
-
- state100_15 = (synType == 14) + (synType == 24);
+ state100_15 = (synType == 12) + (synType == 14);
  
  state200_06 = (synType == 53);
  
